@@ -1,1 +1,1 @@
-# DigiHeroAPI_Applicant
+# DigiHero Web Applicant
