@@ -1,38 +1,31 @@
-package applicant
+package service
 
 import (
-	dto "applicant/app/models/applicant/dto"
-	"strconv"
-
+	"applicant/app/models/applicant/domain"
+	"applicant/app/models/applicant/dto"
+	"applicant/app/models/applicant/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"strconv"
 )
 
-type ApplicantService interface {
-	GetAll() []Applicant
-	GetByID(id int) Applicant
-	Create(ctx *gin.Context) (*Applicant, error)
-	Update(ctx *gin.Context) (*Applicant, error)
-	Delete(ctx *gin.Context) (*Applicant, error)
-}
-
 type ApplicantServiceImpl struct {
-	applicantRepository ApplicantRepository
+	applicantRepository repository.ApplicantRepository
 }
 
-func NewApplicantService(applicantRepository ApplicantRepository) ApplicantService {
+func NewApplicantService(applicantRepository repository.ApplicantRepository) ApplicantService {
 	return &ApplicantServiceImpl{applicantRepository}
 }
 
-func (as *ApplicantServiceImpl) GetAll() []Applicant {
+func (as *ApplicantServiceImpl) GetAll() []domain.Applicant {
 	return as.applicantRepository.FindAll()
 }
 
-func (as *ApplicantServiceImpl) GetByID(id int) Applicant {
-	return as.applicantRepository.FindOne(id)
+func (as *ApplicantServiceImpl) GetByID(id int) domain.Applicant {
+	return as.applicantRepository.FindById(id)
 }
 
-func (as *ApplicantServiceImpl) Create(ctx *gin.Context) (*Applicant, error) {
+func (as *ApplicantServiceImpl) Create(ctx *gin.Context) (*domain.Applicant, error) {
 	var input dto.CreateApplicantInput
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -47,15 +40,16 @@ func (as *ApplicantServiceImpl) Create(ctx *gin.Context) (*Applicant, error) {
 		return nil, err
 	}
 
-	applicant := Applicant{
-		ApplicantsName:       input.ApplicantsName,
+	a := domain.Applicant{
+		IdIndentity:          input.IdIndentity,
 		EventName:            input.EventName,
 		Date:                 input.Date,
 		EventVenues:          input.EventVenues,
 		RequirementMaterials: input.RequirementMaterials,
+		PlaceOfExecution:     input.PlaceOfExecution,
 	}
 
-	result, err := as.applicantRepository.Save(applicant)
+	result, err := as.applicantRepository.Save(a)
 
 	if err != nil {
 		return nil, err
@@ -64,7 +58,7 @@ func (as *ApplicantServiceImpl) Create(ctx *gin.Context) (*Applicant, error) {
 	return result, nil
 }
 
-func (as *ApplicantServiceImpl) Update(ctx *gin.Context) (*Applicant, error) {
+func (as *ApplicantServiceImpl) Update(ctx *gin.Context) (*domain.Applicant, error) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	var input dto.UpdateApplicantInput
@@ -81,16 +75,17 @@ func (as *ApplicantServiceImpl) Update(ctx *gin.Context) (*Applicant, error) {
 		return nil, err
 	}
 
-	applicant := Applicant{
-		ID:                   int64(id),
-		ApplicantsName:       input.ApplicantsName,
+	a := domain.Applicant{
+		ID:                   int32(id),
+		IdIndentity:          input.IdIndentity,
 		EventName:            input.EventName,
 		Date:                 input.Date,
 		EventVenues:          input.EventVenues,
 		RequirementMaterials: input.RequirementMaterials,
+		PlaceOfExecution:     input.PlaceOfExecution,
 	}
 
-	result, err := as.applicantRepository.Update(applicant)
+	result, err := as.applicantRepository.Update(a)
 
 	if err != nil {
 		return nil, err
@@ -99,14 +94,14 @@ func (as *ApplicantServiceImpl) Update(ctx *gin.Context) (*Applicant, error) {
 	return result, nil
 }
 
-func (as *ApplicantServiceImpl) Delete(ctx *gin.Context) (*Applicant, error) {
+func (as *ApplicantServiceImpl) Delete(ctx *gin.Context) (*domain.Applicant, error) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
-	applicant := Applicant{
-		ID: int64(id),
+	a := domain.Applicant{
+		ID: int32(id),
 	}
 
-	result, err := as.applicantRepository.Delete(applicant)
+	result, err := as.applicantRepository.Delete(a)
 
 	if err != nil {
 		return nil, err

@@ -1,79 +1,15 @@
-package applicant
+package controllers
 
-import (
-	as "applicant/app/models/applicant"
-	"net/http"
-	"strconv"
+import "github.com/gin-gonic/gin"
 
-	"github.com/gin-gonic/gin"
-)
+type ApplicantController interface {
+	Index(ctx *gin.Context)
 
-type ApplicantController struct {
-	applicantService as.ApplicantService
-	ctx              *gin.Context
-}
+	GetByID(ctx *gin.Context)
 
-func NewApplicantController(applicantService as.ApplicantService, ctx *gin.Context) ApplicantController {
-	return ApplicantController{applicantService, ctx}
-}
+	Create(ctx *gin.Context)
 
-func (ac *ApplicantController) Index(ctx *gin.Context) {
-	data := ac.applicantService.GetAll()
+	Delete(ctx *gin.Context)
 
-	ctx.JSON(http.StatusOK, data)
-}
-
-func (ac *ApplicantController) GetByID(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-	data := ac.applicantService.GetByID(id)
-
-	ctx.JSON(http.StatusOK, data)
-}
-
-func (ac *ApplicantController) Create(ctx *gin.Context) {
-	data, err := ac.applicantService.Create(ctx)
-
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status": "Error",
-			"data":   err,
-		})
-		ctx.Abort()
-		return
-	}
-
-	ctx.JSON(http.StatusOK, data)
-}
-
-func (ac *ApplicantController) Delete(ctx *gin.Context) {
-	data, err := ac.applicantService.Delete(ctx)
-
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status": "Error",
-			"data":   err,
-		})
-		ctx.Abort()
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"status": "OK",
-		"data":   data,
-	})
-}
-
-func (ac *ApplicantController) Update(ctx *gin.Context) {
-	data, err := ac.applicantService.Update(ctx)
-
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status": "Error",
-			"data":   err,
-		})
-		ctx.Abort()
-		return
-	}
-
-	ctx.JSON(http.StatusOK, data)
+	Update(ctx *gin.Context)
 }
